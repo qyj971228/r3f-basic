@@ -27,7 +27,7 @@ function Scene() {
       );
       const cameraDistanceDefault = 5; // 默认相机高度为5
       let scaleFactor = cameraDistance / cameraDistanceDefault;
-      meshRef.current.scale.set(scaleFactor, scaleFactor, 0);
+      meshRef.current.scale.set(scaleFactor, scaleFactor, scaleFactor);
     }
 
     if (meshRef2.current && controlsRef.current) {
@@ -47,7 +47,7 @@ function Scene() {
   shape2.lineTo(0.1, 0);
   shape2.lineTo(0.1, 0.1);
   shape2.lineTo(0, 0.1);
-  shape2.lineTo(0, 0); // 关闭路径
+  shape2.lineTo(0, 0);
 
   return (
     <>
@@ -57,6 +57,14 @@ function Scene() {
         <meshStandardMaterial
           attach="material"
           color="green"
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+      <mesh position={[-0.1, -0.1, 0]}>
+        <extrudeGeometry args={[shape, extrudeSettings]} />
+        <meshStandardMaterial
+          attach="material"
+          color="red"
           side={THREE.DoubleSide}
         />
       </mesh>
@@ -71,14 +79,6 @@ function Scene() {
         <meshStandardMaterial color="orange" side={THREE.DoubleSide} />
       </mesh>
 
-      <mesh position={[-0.1, -0.1, 0]}>
-        <extrudeGeometry args={[shape, extrudeSettings]} />
-        <meshStandardMaterial
-          attach="material"
-          color="red"
-          side={THREE.DoubleSide}
-        />
-      </mesh>
       <OrbitControls ref={controlsRef} />
     </>
   );

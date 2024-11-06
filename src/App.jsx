@@ -181,8 +181,8 @@ const Scene = () => {
 
 function App() {
   // return <TexttureObject />;
-  // return <CustomObject />
-  return <TileMap />
+  return <CustomObject />
+  // return <TileMap />
 }
 
 export default App

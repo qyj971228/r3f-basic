@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "esnext", // 输出的 JavaScript 版本
+    "useDefineForClassFields": true, // 使用类字段定义方式
+    "lib": ["dom", "esnext"], // 使用的库文件
+    "allowJs": true, // 允许编译 JavaScript 文件
+    "skipLibCheck": true, // 跳过库文件检查
+    "esModuleInterop": true, // 允许默认导入
+    "jsx": "react-jsx", // 使用 React 17 的新 JSX 转换方式
+    "moduleResolution": "node", // 使用 Node 模块解析
+    "strict": true, // 启用所有严格类型检查选项
+    "resolveJsonModule": true // 支持导入 JSON 文件
+  },
+  "include": ["src"], // 包含的目录
+  "exclude": ["node_modules", "dist"] // 排除的目录
+}

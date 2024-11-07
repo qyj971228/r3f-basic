@@ -1,5 +1,5 @@
 import { useSpring, animated } from '@react-spring/three'
-import { useTextureLoader } from '../hooks/useTextureLoader'
+import { useTextureIMGLoader } from '../hooks/useTextureLoader'
 import * as THREE from 'three'
 import { useEffect, useRef } from 'react'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
@@ -26,7 +26,7 @@ export const ImageLayer = ({
   const meshRef = useRef<THREE.Mesh>(null)
 
   // 加载材质
-  const texture = useTextureLoader(img)
+  const texture = useTextureIMGLoader(img)
 
   // 过渡动画：仅当纹理加载完成时透明度变为1，否则保持为0
   const { opacity } = useSpring({
@@ -76,6 +76,8 @@ export const ImageLayer = ({
       meshRef.current.scale.set(scaleFactor, scaleFactor, scaleFactor)
     }
   })
+
+  if (!texture) return null
 
   return (
     <mesh

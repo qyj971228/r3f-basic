@@ -4,7 +4,8 @@ import * as THREE from 'three'
 import { useEffect, useRef } from 'react'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { useFrame } from '@react-three/fiber'
-import { cameraHeight, StackingSpacing } from '../3DMap'
+import { cameraHeight, StackingSpacing, scaleFactor } from '../3DMap'
+import React from 'react'
 
 export type ImageLayerProps = {
   img: string
@@ -12,10 +13,10 @@ export type ImageLayerProps = {
   width: number
   height: number
   absoluteSize?: boolean
-  controlsRef?: React.MutableRefObject<OrbitControls>
+  controlsRef?: React.MutableRefObject<OrbitControls | null>
 }
 
-export const ImageLayer = ({
+const ImageLayerComponent = ({
   img,
   position,
   width,
@@ -36,33 +37,40 @@ export const ImageLayer = ({
 
   // 创建矩形形状
   const shape = new THREE.Shape()
-  shape.moveTo(0, height) // 左上
-  shape.lineTo(width, height) // 右上
-  shape.lineTo(width, 0) // 右下
+  shape.moveTo(0, height * scaleFactor) // 左上
+  shape.lineTo(width * scaleFactor, height * scaleFactor) // 右上
+  shape.lineTo(width * scaleFactor, 0) // 右下
   shape.lineTo(0, 0) // 左下
   shape.closePath()
 
   // 设置UV与居中
   useEffect(() => {
-    if (meshRef.current) {
-      const uvs = meshRef.current.geometry.attributes.uv.array
+    if (meshRef.current && texture) {
+      const geometry = meshRef.current.geometry
+      const boundingBox = new THREE.Box3().setFromObject(meshRef.current) // 获取几何体的包围盒
 
-      // UV 映射
+      // 如果包围盒有效，则继续计算 UV
+      if (boundingBox.isEmpty()) {
+        return // 如果包围盒为空，直接跳过
+      }
+
+      const uvs = geometry.attributes.uv.array
+      const width = boundingBox.max.x - boundingBox.min.x // 计算宽度
+      const height = boundingBox.max.y - boundingBox.min.y // 计算高度
+
       for (let i = 0; i < uvs.length; i += 2) {
         const x = uvs[i]
         const y = uvs[i + 1]
 
-        uvs[i] = x / width // x 坐标的 UV 映射：从 0 到 1
-        uvs[i + 1] = y / height // y 坐标的 UV 映射：从 0 到 1
+        // 使用包围盒的尺寸将 UV 映射到 [0, 1] 范围
+        uvs[i] = x / width
+        uvs[i + 1] = y / height
       }
 
-      // 更新 UV 坐标
-      meshRef.current.geometry.attributes.uv.needsUpdate = true
-
-      // 居中
-      meshRef.current.geometry.center()
+      geometry.attributes.uv.needsUpdate = true // 标记 UV 更新
+      geometry.center() // 可选：居中几何体
     }
-  }, [width, height, position])
+  }, [img, width, height, texture])
 
   // 绝对大小下设置动态缩放
   useFrame(() => {
@@ -82,10 +90,10 @@ export const ImageLayer = ({
   return (
     <mesh
       ref={meshRef}
-      position={[...position, 2 * StackingSpacing]}
+      position={[...position, StackingSpacing]}
     >
       <shapeGeometry args={[shape]} />
-      <animated.meshBasicMaterial
+      <animated.meshStandardMaterial
         map={texture}
         side={THREE.DoubleSide}
         transparent={true}
@@ -94,3 +102,5 @@ export const ImageLayer = ({
     </mesh>
   )
 }
+
+export const ImageLayer = React.memo(ImageLayerComponent)

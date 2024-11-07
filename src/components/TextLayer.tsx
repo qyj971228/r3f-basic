@@ -15,7 +15,8 @@ import { useRef } from 'react'
 import { useSpring, animated } from '@react-spring/three'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import { cameraHeight, StackingSpacing } from '../3DMap'
+import { cameraHeight, StackingSpacing, scaleFactor } from '../3DMap'
+import React from 'react'
 
 // 导入标签
 extend({ TextGeometry })
@@ -29,10 +30,10 @@ type TextLayerProps = {
   }
   children: React.ReactNode // 添加children，允许直接渲染文本内容
   absoluteSize?: boolean // 如果要使用绝对尺寸，必须传入控制器
-  controlsRef?: React.MutableRefObject<OrbitControls>
+  controlsRef?: React.MutableRefObject<OrbitControls | null>
 }
 
-export const TextLayer = (props: TextLayerProps) => {
+const TextLayerComponent = (props: TextLayerProps) => {
   const {
     position,
     config: { size: propsSize, color: propsColor, font: propsFont },
@@ -49,7 +50,7 @@ export const TextLayer = (props: TextLayerProps) => {
 
   const textConfig = {
     font: font as Font, // 使用加载的字体
-    size: propsSize, // 调整字体大小
+    size: propsSize * scaleFactor * 0.8, // 调整字体大小
     depth: 0, // 字体深度
     curveSegments: 12, // 曲线段数
   }
@@ -94,13 +95,13 @@ export const TextLayer = (props: TextLayerProps) => {
   return (
     <mesh
       ref={meshRef}
-      position={[...position, 4 * StackingSpacing]}
+      position={[...position, StackingSpacing]}
     >
       <textGeometry
         ref={textGeometryRef}
         args={[text, textConfig]}
       />
-      <animated.meshBasicMaterial
+      <animated.meshStandardMaterial
         color={propsColor}
         side={THREE.DoubleSide}
         transparent={true}
@@ -109,3 +110,5 @@ export const TextLayer = (props: TextLayerProps) => {
     </mesh>
   )
 }
+
+export const TextLayer = React.memo(TextLayerComponent)

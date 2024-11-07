@@ -1,21 +1,20 @@
 import { useSpring, animated } from '@react-spring/three'
 import * as THREE from 'three'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { useFrame } from '@react-three/fiber'
-import html2canvas from 'html2canvas'
-import { cameraHeight, StackingSpacing, scaleFactor } from '../3DMap'
-import ReactDOMServer from 'react-dom/server'
+import { cameraHeight, StackingSpacing } from '../3DMap'
 import { useTextureDomLoader } from '../hooks/useTextureLoader'
+import React from 'react'
 
 export type ImageLayerProps = {
   position: [number, number]
   children: React.ReactNode
   absoluteSize?: boolean
-  controlsRef?: React.MutableRefObject<OrbitControls>
+  controlsRef?: React.MutableRefObject<OrbitControls | null>
 }
 
-export const DomLayer = ({ position, children, absoluteSize, controlsRef }: ImageLayerProps) => {
+const DomLayerComponent = ({ position, children, absoluteSize, controlsRef }: ImageLayerProps) => {
   const meshRef = useRef<THREE.Mesh>(null)
 
   // 加载材质
@@ -38,17 +37,31 @@ export const DomLayer = ({ position, children, absoluteSize, controlsRef }: Imag
   // 更新 UV
   useEffect(() => {
     if (meshRef.current && texture) {
-      const uvs = meshRef.current.geometry.attributes.uv.array
+      const geometry = meshRef.current.geometry
+      const boundingBox = new THREE.Box3().setFromObject(meshRef.current) // 获取几何体的包围盒
+
+      // 如果包围盒有效，则继续计算 UV
+      if (boundingBox.isEmpty()) {
+        return // 如果包围盒为空，直接跳过
+      }
+
+      const uvs = geometry.attributes.uv.array
+      const width = boundingBox.max.x - boundingBox.min.x // 计算宽度
+      const height = boundingBox.max.y - boundingBox.min.y // 计算高度
+
       for (let i = 0; i < uvs.length; i += 2) {
         const x = uvs[i]
         const y = uvs[i + 1]
-        uvs[i] = x / shapeSize[0]
-        uvs[i + 1] = y / shapeSize[1]
+
+        // 使用包围盒的尺寸将 UV 映射到 [0, 1] 范围
+        uvs[i] = x / width
+        uvs[i + 1] = y / height
       }
-      meshRef.current.geometry.attributes.uv.needsUpdate = true
-      meshRef.current.geometry.center()
+
+      geometry.attributes.uv.needsUpdate = true // 标记 UV 更新
+      geometry.center()
     }
-  }, [shapeSize, texture])
+  }, [texture, position, children])
 
   useFrame(() => {
     if (absoluteSize && meshRef.current && controlsRef?.current) {
@@ -66,10 +79,10 @@ export const DomLayer = ({ position, children, absoluteSize, controlsRef }: Imag
     <>
       <mesh
         ref={meshRef}
-        position={[...position, 2 * StackingSpacing]}
+        position={[...position, StackingSpacing]}
       >
         <shapeGeometry args={[shape]} />
-        <animated.meshBasicMaterial
+        <animated.meshStandardMaterial
           map={texture}
           side={THREE.DoubleSide}
           transparent={true}
@@ -79,3 +92,5 @@ export const DomLayer = ({ position, children, absoluteSize, controlsRef }: Imag
     </>
   )
 }
+
+export const DomLayer = React.memo(DomLayerComponent)

@@ -10,7 +10,7 @@ import { useControls } from 'leva'
 import { useSpring, animated } from '@react-spring/three'
 import CustomObject from './3DMap'
 import TexttureObject from './textTure'
-import TileMap from './TileMap'
+import TileMap from './Scale'
 
 const Cube = ({ position, size, color }) => {
   const ref = useRef()

@@ -4,7 +4,7 @@ import DEFAULT_FONT from '../assets/font-cn.json'
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader'
 
 export const useFontLoader = (fontJSONObj?: string) => {
-  const [font, setFont] = useState<Font | null>(null)
+  const [font, setFont] = useState<Font>()
 
   useEffect(() => {
     const loader = new FontLoader()

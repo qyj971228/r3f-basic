@@ -8,10 +8,12 @@ import IMG from './assets/map.png'
 import ICON from './assets/react.svg'
 import { ImageLayer } from './components/ImageLayer'
 import { TextLayer } from './components/TextLayer'
+import { DomLayer } from './components/DomLayer'
 
 export const StackingSpacing = 0.001
 const center = [111.194099, 34.297338]
 export const cameraHeight = 1
+export const scaleFactor = 0.05 / 32
 
 function CustomCurve() {
   // 创建一个简单的三次贝塞尔曲线
@@ -120,8 +122,7 @@ function CustomObject() {
 
   return (
     <>
-      <ambientLight />
-      <pointLight position={[10, 10, 10]} />
+      <ambientLight intensity={3} />
 
       {/* 3D模型 */}
       {geometry && texture && (
@@ -138,28 +139,45 @@ function CustomObject() {
 
       {/* <MyText /> */}
       <TextLayer
-        position={[111, 34]}
+        position={[111, 34.2]}
         config={{ size: 0.05, color: 'red' }}
         absoluteSize={true}
         controlsRef={controlsRef}
       >
-        你好
+        这是文字图层
       </TextLayer>
 
       {/* imageLayer */}
       <ImageLayer
         img={ICON}
-        position={[111, 34]}
+        position={[111, 34.1]}
         width={0.12}
         height={0.1}
         absoluteSize={true}
         controlsRef={controlsRef}
       />
 
+      {/* domlayer */}
+      <DomLayer
+        position={[111, 33.9]}
+        absoluteSize={true}
+        controlsRef={controlsRef}
+      >
+        <div
+          style={{
+            display: 'flex',
+            color: 'yellow',
+          }}
+        >
+          <img src={ICON} style={{height: '20px', width: '20px'}}></img>
+          <div>这是一个打点</div>
+        </div>
+      </DomLayer>
+
       {/* dashed line */}
-      <mesh position={[0, 0, 0]}>
+      {/* <mesh position={[0, 0, 0]}>
         <CustomCurve />
-      </mesh>
+      </mesh> */}
 
       <OrbitControls
         target={target}
@@ -171,9 +189,17 @@ function CustomObject() {
 
 function App() {
   return (
-    <Canvas camera={{ position: [...center, cameraHeight] }}>
-      <CustomObject />
-    </Canvas>
+    <>
+      <Canvas
+        gl={{
+          preserveDrawingBuffer: true, // 启用 preserveDrawingBuffer
+        }}
+        style={{ height: '100vh', width: '100wh' }}
+        camera={{ position: [...center, cameraHeight] }}
+      >
+        <CustomObject />
+      </Canvas>
+    </>
   )
 }
 

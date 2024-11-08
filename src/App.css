@@ -4,6 +4,8 @@
   border: 0;
 }
 canvas {
+  height: 100vh;
+  width: 100vw;
   background-color: transparent;
 }
 body {

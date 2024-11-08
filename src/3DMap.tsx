@@ -156,9 +156,9 @@ function Scene() {
       /> */}
 
       {/* dashed line */}
-      <mesh position={[0, 0, 0]}>
+      {/* <mesh position={[0, 0, 0]}>
         <CustomCurve />
-      </mesh>
+      </mesh> */}
       <OrbitControls
         target={target}
         ref={controlsRef as any}

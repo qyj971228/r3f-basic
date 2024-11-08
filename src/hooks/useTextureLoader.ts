@@ -2,7 +2,7 @@ import html2canvas from 'html2canvas'
 import { useEffect, useState } from 'react'
 import ReactDOMServer from 'react-dom/server'
 import * as THREE from 'three'
-import { scaleFactor } from '../3DMap'
+import { StackingSpacing, center, cameraHeight, scaleFactor } from '../map.config'
 
 // 材质优化
 function textureOptimization(texture: THREE.Texture) {

@@ -1,11 +1,11 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
 import { useTextureIMGLoader } from '../hooks/useTextureLoader'
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import { useFrame } from '@react-three/fiber'
-import { cameraHeight } from '../3DMap'
-import { animated, useSpring } from '@react-spring/three'
+import { animated, useSpring, to } from '@react-spring/three'
 import { Edges } from '@react-three/drei'
+import chroma from 'chroma-js'
+import { useAbsoluteSize } from '../hooks/useAbsoluteSize'
+import { uv3DCompute } from '../utils/uvCompute'
 
 export type MapLayerProps = {
   img?: string
@@ -14,93 +14,80 @@ export type MapLayerProps = {
   positions: [number, number][]
   height: number
   absoluteSize?: boolean
-  controlsRef?: React.MutableRefObject<OrbitControls | null>
+  dependents?: any[] // 额外依赖
 }
 
 export const MapLayer = ({
   img,
-  color,
+  color: propColor = 'pink',
   positions,
   showEdge,
   height,
   absoluteSize,
-  controlsRef,
+  dependents,
 }: MapLayerProps) => {
-  const texture = img && useTextureIMGLoader(img)
+  // absoluteSize
+  const meshRef = useRef<THREE.Mesh>(null)
+  absoluteSize && useAbsoluteSize(meshRef)
 
-  // 过渡动画：仅当纹理加载完成时透明度变为1，否则保持为0
+  // custom texture
+  const texture = img && useTextureIMGLoader(img)
+  
   const { opacity } = useSpring({
     opacity: texture ? 1 : 0,
-    config: { tension: 200, friction: 200 },
+    config: { tension: 200, friction: 20 },
   })
 
-  const meshRef = useRef<THREE.Mesh>(null)
+  // texture color
+  const [hovered, setHovered] = useState(false)
 
-  const shape = new THREE.Shape()
+  const brighterColor = chroma(propColor).brighten(0.5).hex()
 
-  const [firstLat, firstLon] = positions[0]
-  shape.moveTo(firstLat, firstLon)
-
-  positions.forEach(([lat, lon]) => {
-    shape.lineTo(lat, lon)
+  const { color } = useSpring({
+    color: hovered ? brighterColor : propColor,
+    config: { duration: 200 },
   })
 
-  shape.lineTo(firstLat, firstLon)
-
-  shape.closePath()
-
+  // extrudeGeometry args
   const extrudeSettings = {
     depth: -height,
     bevelEnabled: false,
   }
 
-  // 计算UV
-  useEffect(() => {
-    if (meshRef.current && texture) {
-      const geometry = meshRef.current.geometry
-      // 计算几何体的边界框
-      geometry.computeBoundingBox()
+  // shape
+  const shape = new THREE.Shape()
 
-      // 计算 UV 值
-      const positionAttribute = geometry.attributes.position
-      const uvArray = new Float32Array(positionAttribute.count * 2)
+  const [firstLat, firstLon] = positions[0]
 
-      if (!geometry.boundingBox) return
-
-      const width = geometry.boundingBox.max.x - geometry.boundingBox.min.x
-      const height = geometry.boundingBox.max.y - geometry.boundingBox.min.y
-
-      for (let i = 0; i < positionAttribute.count; i++) {
-        const x = positionAttribute.getX(i)
-        const y = positionAttribute.getY(i)
-
-        // 将位置映射到 UV 值（范围 [0, 1]）
-        uvArray[i * 2] = (x - geometry.boundingBox.min.x) / width
-        uvArray[i * 2 + 1] = (y - geometry.boundingBox.min.y) / height
-      }
-
-      geometry.setAttribute('uv', new THREE.BufferAttribute(uvArray, 2))
-      geometry.attributes.uv.needsUpdate = true
-    }
-  }, [texture])
-
-  useFrame(() => {
-    if (absoluteSize && meshRef.current && controlsRef?.current) {
-      const cameraDistance = controlsRef.current.object.position.distanceTo(
-        controlsRef.current.target
-      )
-      let scaleFactor = cameraDistance / cameraHeight
-      meshRef.current.scale.set(scaleFactor, scaleFactor, scaleFactor)
-    }
+  shape.moveTo(firstLat, firstLon)
+  positions.forEach(([lat, lon]) => {
+    shape.lineTo(lat, lon)
   })
+  shape.lineTo(firstLat, firstLon)
+  shape.closePath()
+
+  // UV
+  useEffect(() => {
+    texture && uv3DCompute(meshRef)
+  }, [texture, dependents])
 
   return (
     <>
       <animated.mesh
         ref={meshRef}
         position={[0, 0, 0]}
+        onPointerEnter={e => {
+          if (texture) return
+          e.stopPropagation()
+          setHovered(true)
+        }}
+        onPointerLeave={e => {
+          if (texture) return
+          e.stopPropagation()
+          setHovered(false)
+        }}
       >
-        <extrudeGeometry args={[shape, extrudeSettings]} />
+        {shape && <extrudeGeometry args={[shape, extrudeSettings]} />}
         {texture ? (
           <animated.meshStandardMaterial
             map={texture}
@@ -110,13 +97,18 @@ export const MapLayer = ({
           />
         ) : (
           <animated.meshStandardMaterial
-            color={color ? color : 'pink'}
-            opacity={0.99}
+            color={to([color], color => color)}
+            opacity={1}
             transparent={true}
             side={THREE.DoubleSide}
           />
         )}
-        {showEdge && <Edges color={'#bbb'} />}
+        {showEdge && (
+          <Edges
+            color={'#bbb'}
+            lineWidth={1}
+          />
+        )}
       </animated.mesh>
     </>
   )

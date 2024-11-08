@@ -3,6 +3,7 @@ import { Canvas, useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { OrbitControls } from '@react-three/drei'
 
+// TODO: 根据曲线起止动态设置内方块个数和间隔，终点箭头指向，超出部分隐藏
 const MovingBoxes: React.FC = () => {
   const boxRefs = useRef<THREE.Mesh[]>([])
   const clockRef = useRef(new THREE.Clock())

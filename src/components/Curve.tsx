@@ -4,6 +4,8 @@ import { Line } from '@react-three/drei'
 import * as THREE from 'three'
 import { Line2 } from 'three-stdlib'
 
+// TODO: 根据曲线起止生成合适的贝塞尔曲线
+// TODO: 曲线样式props
 export function Curve() {
   // 使用 useMemo 优化曲线计算
   const points = useMemo(() => {

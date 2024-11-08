@@ -5,16 +5,27 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { useFrame } from '@react-three/fiber'
 import { cameraHeight } from '../3DMap'
 import { animated, useSpring } from '@react-spring/three'
+import { Edges } from '@react-three/drei'
 
 export type MapLayerProps = {
   img?: string
+  color?: string
+  showEdge?: boolean
   positions: [number, number][]
   height: number
   absoluteSize?: boolean
   controlsRef?: React.MutableRefObject<OrbitControls | null>
 }
 
-export const MapLayer = ({ img, positions, height, absoluteSize, controlsRef }: MapLayerProps) => {
+export const MapLayer = ({
+  img,
+  color,
+  positions,
+  showEdge,
+  height,
+  absoluteSize,
+  controlsRef,
+}: MapLayerProps) => {
   const texture = img && useTextureIMGLoader(img)
 
   // 过渡动画：仅当纹理加载完成时透明度变为1，否则保持为0
@@ -35,6 +46,8 @@ export const MapLayer = ({ img, positions, height, absoluteSize, controlsRef }: 
   })
 
   shape.lineTo(firstLat, firstLon)
+
+  shape.closePath()
 
   const extrudeSettings = {
     depth: -height,
@@ -83,7 +96,10 @@ export const MapLayer = ({ img, positions, height, absoluteSize, controlsRef }: 
 
   return (
     <>
-      <mesh ref={meshRef}>
+      <animated.mesh
+        ref={meshRef}
+        position={[0, 0, 0]}
+      >
         <extrudeGeometry args={[shape, extrudeSettings]} />
         {texture ? (
           <animated.meshStandardMaterial
@@ -93,14 +109,15 @@ export const MapLayer = ({ img, positions, height, absoluteSize, controlsRef }: 
             opacity={opacity}
           />
         ) : (
-          <meshStandardMaterial
-            color={'skyblue'}
-            opacity={0.8}
+          <animated.meshStandardMaterial
+            color={color ? color : 'pink'}
+            opacity={0.99}
             transparent={true}
             side={THREE.DoubleSide}
           />
         )}
-      </mesh>
+        {showEdge && <Edges color={'#bbb'} />}
+      </animated.mesh>
     </>
   )
 }

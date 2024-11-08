@@ -103,4 +103,4 @@ const ImageLayerComponent = ({
   )
 }
 
-export const ImageLayer = React.memo(ImageLayerComponent)
+export const ImageLayer = ImageLayerComponent

@@ -111,4 +111,4 @@ const TextLayerComponent = (props: TextLayerProps) => {
   )
 }
 
-export const TextLayer = React.memo(TextLayerComponent)
+export const TextLayer = TextLayerComponent

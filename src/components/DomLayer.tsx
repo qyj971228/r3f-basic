@@ -93,4 +93,4 @@ const DomLayerComponent = ({ position, children, absoluteSize, controlsRef }: Im
   )
 }
 
-export const DomLayer = React.memo(DomLayerComponent)
+export const DomLayer = DomLayerComponent

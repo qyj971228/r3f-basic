@@ -1,8 +1,8 @@
-import MAP from './3DMap'
+import Map from './3DMap'
 import './App.css'
 
 function App() {
-  return <MAP />
+  return <Map />
 }
 
 export default App

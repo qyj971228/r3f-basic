@@ -2,7 +2,7 @@ import { useSpring, animated } from '@react-spring/three'
 import { useTextureIMGLoader } from '../hooks/useTextureLoader'
 import * as THREE from 'three'
 import { useEffect, useRef } from 'react'
-import { StackingSpacing, center, cameraHeight, scaleFactor } from '../map.config'
+import { StackingSpacing, scaleFactor } from '../map.config'
 import { useAbsoluteSize } from '../hooks/useAbsoluteSize'
 import { uv2DCompute } from '../utils/uvCompute'
 

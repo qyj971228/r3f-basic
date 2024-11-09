@@ -1,7 +1,7 @@
 import { useSpring, animated } from '@react-spring/three'
 import * as THREE from 'three'
 import { useEffect, useRef } from 'react'
-import { StackingSpacing, center, cameraHeight, scaleFactor } from '../map.config'
+import { StackingSpacing } from '../map.config'
 import { useTextureDomLoader } from '../hooks/useTextureLoader'
 import React from 'react'
 import { useAbsoluteSize } from '../hooks/useAbsoluteSize'

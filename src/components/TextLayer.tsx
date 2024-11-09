@@ -9,13 +9,12 @@ declare global {
 
 import { useFontLoader } from '../hooks/useFontLoader'
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry'
-import { extend, Object3DNode, useFrame, useThree } from '@react-three/fiber'
+import { extend, Object3DNode, useFrame } from '@react-three/fiber'
 import { Font } from 'three/examples/jsm/loaders/FontLoader'
 import { useRef } from 'react'
 import { useSpring, animated } from '@react-spring/three'
 import * as THREE from 'three'
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import { StackingSpacing, center, cameraHeight, scaleFactor } from '../map.config'
+import { StackingSpacing, scaleFactor } from '../map.config'
 import React from 'react'
 import { useAbsoluteSize } from '../hooks/useAbsoluteSize'
 
@@ -72,7 +71,7 @@ const TextLayerComponent = (props: TextLayerProps) => {
       meshRef.current.position.set(
         position[0] - size.x / 2,
         position[1] - size.y / 2,
-        2 * StackingSpacing
+        StackingSpacing
       )
     }
   })

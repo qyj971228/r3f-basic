@@ -10,10 +10,10 @@ export function Curve() {
   // 使用 useMemo 优化曲线计算
   const points = useMemo(() => {
     const curve = new THREE.CubicBezierCurve3(
-      new THREE.Vector3(111.5, 34.8, 0),
-      new THREE.Vector3(111.25, 34.4, 0.2),
-      new THREE.Vector3(111.25, 34.4, 0.2),
-      new THREE.Vector3(111, 34, 0)
+      new THREE.Vector3(112, 35, 0),
+      new THREE.Vector3(112, 34.5, 0.4),
+      new THREE.Vector3(112, 34.5, 0.4),
+      new THREE.Vector3(112, 34, 0)
     )
     return curve.getPoints(50).flatMap(p => [p.x, p.y, p.z]) // 50个点来构建曲线
   }, [])
@@ -38,10 +38,10 @@ export function Curve() {
       <Line
         ref={lineRef}
         points={points}
-        color='royalblue'
-        lineWidth={10}
+        color='yellow'
+        lineWidth={2}
         dashed={true}
-        dashSize={0.1}
+        dashSize={0.1} // dashsize和gapsize相同的话会得到连续的运动
         gapSize={0.1}
         dashOffset={0}
       />

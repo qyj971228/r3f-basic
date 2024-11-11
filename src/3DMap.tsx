@@ -16,6 +16,7 @@ import { useControls } from 'leva'
 import { center, cameraHeight } from './map.config'
 import { Light } from './components/Light'
 import { Curve } from './components/Curve'
+import { Curve3D } from './components/Curve3D'
 
 function Scene() {
   const controlsRef = useRef<OrbitControlsType>(null)
@@ -80,8 +81,8 @@ function Scene() {
           <div
             style={{
               display: 'flex',
-              color: 'black',
-              fontSize: '12px',
+              color: 'red',
+              fontSize: '18px',
               fontWeight: 'bolder',
               margin: '5px',
             }}
@@ -120,6 +121,7 @@ function Scene() {
 
       {/* dashed line */}
       <Curve />
+      <Curve3D />
 
       <OrbitControls
         target={target}
